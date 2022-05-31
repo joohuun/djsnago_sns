@@ -41,7 +41,10 @@ INSTALLED_APPS = [
     'tweet',
     'user',
     'restaurant',
+    'taggit.apps.TaggitAppConfig',
+    'taggit_templatetags2'
 ]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
