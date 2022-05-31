@@ -13,21 +13,22 @@ def home(request):
         return redirect('sign-in')
 
 
+@login_required
 def tweet(request):
-    if request.method == 'GET':
-        user = request.user.is_authenticated
-        if user:
+    if request.method == 'GET':  # 요청하는 방식이 GET 방식인지 확인하기
+        all_tweet = TweetModel.objects.all().order_by('-created_at')
+        return render(request, 'tweet/home.html', {'tweet': all_tweet})
+    elif request.method == 'POST':  # 요청 방식이 POST 일때
+        user = request.user  # 현재 로그인 한 사용자를 불러오기
+        content = request.POST.get('my-content', '')  # 글 작성이 되지 않았다면 빈칸으로
+
+        if content == '':  # 글이 빈칸이면 기존 tweet과 에러를 같이 출력
             all_tweet = TweetModel.objects.all().order_by('-created_at')
-            return render(request, 'tweet/home.html', {'tweet': all_tweet})
+            return render(request, 'tweet/home.html', {'error': '글은 공백일 수 없습니다', 'tweet': all_tweet})
         else:
-            return redirect('/sign-in')
-    elif request.method == 'POST':
-        user = request.user
-        my_tweet = TweetModel()
-        my_tweet.author = user
-        my_tweet.content = request.POST.get('my-content', '')
-        my_tweet.save()
-        return redirect('/tweet')
+            my_tweet = TweetModel.objects.create(author=user, content=content)  # 글 저장을 한번에!
+            my_tweet.save()
+            return redirect('/tweet')
 
 
 @login_required
